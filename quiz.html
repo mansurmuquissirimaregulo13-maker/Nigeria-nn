@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premise — Earn with Tasks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:   #1B5EF7;
+  --blue2:  #0A40D4;
+  --teal:   #00C9A7;
+  --light:  #F0F4FF;
+  --white:  #FFFFFF;
+  --dark:   #0C0F1A;
+  --gray:   #6B7280;
+  --border: #E5E9F2;
+  --success:#10B981;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:var(--light);color:var(--dark);min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+
+/* TOPBAR */
+.topbar{width:100%;background:#fff;border-bottom:1px solid var(--border);padding:11px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-mark{width:32px;height:32px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(27,94,247,.35);}
+.logo-mark svg{width:18px;height:18px;fill:#fff;}
+.logo-texts{line-height:1.1;}
+.logo-name{font-weight:800;font-size:1rem;color:var(--dark);}
+.logo-sub{font-size:.58rem;font-weight:700;color:var(--blue);letter-spacing:.5px;text-transform:uppercase;}
+.balance-badge{background:linear-gradient(135deg,var(--blue),var(--teal));color:#fff;font-weight:700;font-size:.85rem;padding:6px 14px;border-radius:100px;font-family:'DM Mono',monospace;box-shadow:0 4px 14px rgba(27,94,247,.3);transition:transform .2s,box-shadow .2s;}
+.balance-badge.pop{transform:scale(1.12);box-shadow:0 6px 24px rgba(0,201,167,.55);}
+
+/* PROGRESS */
+.prog-wrap{width:100%;background:#fff;border-bottom:1px solid var(--border);padding:8px 18px;display:none;}
+.prog-meta{display:flex;justify-content:space-between;font-size:.68rem;color:var(--gray);font-weight:600;margin-bottom:5px;}
+.prog-track{height:4px;background:var(--border);border-radius:100px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:100px;transition:width .55s cubic-bezier(.4,0,.2,1);}
+
+/* WRAP */
+.wrap{width:100%;max-width:455px;padding:18px 15px 44px;}
+
+/* SCREENS */
+.scr{display:none;animation:rise .38s ease forwards;}
+.scr.on{display:block;}
+@keyframes rise{from{opacity:0;transform:translateY(13px)}to{opacity:1;transform:translateY(0)}}
+
+/* GATE */
+#gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(12,15,26,.65);backdrop-filter:blur(12px);z-index:200;padding:18px;}
+.gate-card{background:#fff;border-radius:22px;padding:34px 26px;width:100%;max-width:390px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.2);animation:pop .42s cubic-bezier(.34,1.56,.64,1);}
+@keyframes pop{from{opacity:0;transform:scale(.87)}to{opacity:1;transform:scale(1)}}
+.gate-icon{width:66px;height:66px;background:linear-gradient(135deg,#EEF2FF,#DBEAFE);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:2rem;}
+.gate-card h2{font-size:1.45rem;font-weight:800;margin-bottom:7px;}
+.gate-card p{font-size:.86rem;color:var(--gray);line-height:1.6;margin-bottom:22px;}
+.gbtn{width:100%;padding:14px;border-radius:11px;font-family:'Sora',sans-serif;font-weight:700;font-size:.92rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;margin-bottom:9px;}
+.gbtn-primary{background:var(--blue);color:#fff;box-shadow:0 6px 18px rgba(27,94,247,.35);}
+.gbtn-primary:hover{background:var(--blue2);transform:translateY(-1px);}
+.gbtn-muted{background:var(--light);color:var(--gray);border:1px solid var(--border);}
+.live-row{display:flex;align-items:center;justify-content:center;gap:5px;font-size:.73rem;color:var(--gray);margin-top:10px;}
+.ldot{width:7px;height:7px;background:var(--success);border-radius:50%;animation:lp 1.5s infinite;}
+@keyframes lp{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* WELCOME */
+.wcard{background:#fff;border-radius:20px;border:1px solid var(--border);padding:26px 22px;box-shadow:0 4px 18px rgba(0,0,0,.06);text-align:center;}
+.premise-pill{display:inline-flex;align-items:center;gap:6px;background:var(--light);border:1px solid #C7D7FD;border-radius:100px;padding:5px 14px;font-size:.7rem;font-weight:700;color:var(--blue);letter-spacing:.3px;margin-bottom:16px;}
+.wcard h2{font-size:1.35rem;font-weight:800;line-height:1.3;margin-bottom:7px;}
+.wcard p{font-size:.85rem;color:var(--gray);line-height:1.6;margin-bottom:18px;}
+.bal-card{background:linear-gradient(135deg,var(--blue),#3B82F6,var(--teal));border-radius:15px;padding:20px;margin:14px 0 18px;position:relative;overflow:hidden;text-align:left;}
+.bal-card::after{content:'';position:absolute;top:-25px;right:-25px;width:110px;height:110px;background:rgba(255,255,255,.07);border-radius:50%;}
+.bal-lbl{font-size:.63rem;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;font-weight:600;}
+.bal-amt{font-size:2.5rem;font-weight:800;color:#fff;font-family:'DM Mono',monospace;margin:3px 0 2px;text-shadow:0 2px 8px rgba(0,0,0,.12);}
+.bal-s{font-size:.72rem;color:rgba(255,255,255,.6);}
+.usd-equiv{font-size:.78rem;color:rgba(255,255,255,.5);font-family:'DM Mono',monospace;margin-top:2px;}
+.hint-row{display:flex;align-items:center;gap:9px;background:var(--light);border:1px solid var(--border);border-radius:9px;padding:11px 13px;margin-bottom:16px;text-align:left;}
+.hint-ico{font-size:1.2rem;}
+.hint-txt{font-size:.8rem;color:var(--gray);line-height:1.4;}
+.hint-txt strong{color:var(--dark);}
+.sbtn{width:100%;padding:15px;background:var(--blue);color:#fff;border:none;border-radius:11px;font-family:'Sora',sans-serif;font-weight:700;font-size:.92rem;cursor:pointer;box-shadow:0 6px 18px rgba(27,94,247,.35);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.sbtn:hover{background:var(--blue2);transform:translateY(-1px);}
+
+/* TASK CARD */
+.tcard{background:#fff;border-radius:20px;border:1px solid var(--border);overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.06);}
+.tbar{background:linear-gradient(135deg,var(--blue),var(--teal));padding:11px 18px;display:flex;align-items:center;justify-content:space-between;}
+.tbar-label{font-size:.7rem;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.7px;}
+.tbar-chip{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:100px;padding:3px 10px;font-size:.73rem;font-weight:700;color:#fff;font-family:'DM Mono',monospace;}
+.tinner{padding:20px 18px;}
+.tq{font-size:.93rem;font-weight:700;margin-bottom:3px;}
+.tsub{font-size:.76rem;color:var(--gray);margin-bottom:14px;}
+
+/* PHOTO GRID */
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.popt{aspect-ratio:1;border-radius:11px;overflow:hidden;cursor:pointer;border:3px solid transparent;transition:all .18s;position:relative;}
+.popt img{width:100%;height:100%;object-fit:cover;display:block;}
+.popt:hover{border-color:var(--blue);transform:scale(1.02);}
+.popt.sel{border-color:var(--blue);box-shadow:0 0 0 2px rgba(27,94,247,.3);}
+.popt .ck{position:absolute;top:6px;right:6px;width:22px;height:22px;background:var(--blue);border-radius:50%;display:none;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:800;}
+.popt.sel .ck{display:flex;}
+.pcap{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.6));color:#fff;font-size:.62rem;font-weight:600;padding:14px 6px 5px;text-align:center;}
+
+/* CHOICES */
+.clist{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+.citem{display:flex;align-items:center;gap:11px;border:1.5px solid var(--border);border-radius:11px;padding:12px 13px;cursor:pointer;transition:all .18s;font-size:.86rem;font-weight:500;}
+.citem:hover{border-color:var(--blue);background:var(--light);}
+.citem.sel{border-color:var(--blue);background:var(--light);}
+.cradio{width:19px;height:19px;border:2px solid var(--border);border-radius:50%;flex-shrink:0;transition:all .18s;display:flex;align-items:center;justify-content:center;}
+.citem.sel .cradio{border-color:var(--blue);}
+.citem.sel .cradio::after{content:'';width:9px;height:9px;background:var(--blue);border-radius:50%;}
+
+.nbtn{width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:11px;font-family:'Sora',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.nbtn:hover{background:var(--blue2);}
+.nbtn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* LOADING */
+.tload{display:none;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;gap:16px;text-align:center;}
+.tload.on{display:flex;}
+.pdots{display:flex;gap:6px;}
+.pdots span{width:10px;height:10px;border-radius:50%;animation:pd 1.2s ease-in-out infinite;}
+.pdots span:nth-child(1){background:var(--blue);animation-delay:0s;}
+.pdots span:nth-child(2){background:var(--teal);animation-delay:.18s;}
+.pdots span:nth-child(3){background:var(--blue);animation-delay:.36s;}
+@keyframes pd{0%,80%,100%{transform:scale(.5);opacity:.4}40%{transform:scale(1.1);opacity:1}}
+.load-title{font-size:.86rem;font-weight:600;color:var(--dark);}
+.load-steps{display:flex;flex-direction:column;gap:5px;margin-top:3px;}
+.load-steps span{font-size:.73rem;color:var(--gray);opacity:0;transition:opacity .4s;}
+.load-steps span.on{opacity:1;}
+
+/* FINAL */
+.fcard{background:#fff;border-radius:20px;border:1px solid var(--border);padding:26px 22px;box-shadow:0 4px 18px rgba(0,0,0,.06);text-align:center;}
+.fcard h2{font-size:1.35rem;font-weight:800;margin-bottom:6px;}
+.fcard p{font-size:.84rem;color:var(--gray);line-height:1.6;margin-bottom:4px;}
+.wbtn{width:100%;padding:15px;background:linear-gradient(135deg,var(--blue),var(--teal));color:#fff;border:none;border-radius:11px;font-family:'Sora',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;box-shadow:0 8px 22px rgba(27,94,247,.4);transition:all .2s;animation:glow 2.5s ease-in-out infinite;display:flex;align-items:center;justify-content:center;gap:7px;}
+.wbtn:hover{transform:translateY(-2px);}
+@keyframes glow{0%,100%{box-shadow:0 8px 22px rgba(27,94,247,.35)}50%{box-shadow:0 8px 30px rgba(0,201,167,.55)}}
+.sec-note{display:flex;align-items:center;justify-content:center;gap:5px;font-size:.7rem;color:var(--gray);margin-top:9px;}
+
+/* COIN BURST animation */
+@keyframes coinFloat{
+  0%{transform:translateY(0) scale(1);opacity:1;}
+  100%{transform:translateY(-70px) scale(1.4);opacity:0;}
+}
+.coin-burst{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:2.8rem;
+  pointer-events:none;
+  z-index:999;
+  animation:coinFloat .7s ease forwards;
+}
+
+/* TOAST */
+.toast{position:fixed;top:68px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--dark);color:#fff;font-weight:700;font-size:.82rem;padding:9px 18px;border-radius:100px;z-index:500;box-shadow:0 6px 18px rgba(0,0,0,.22);display:flex;align-items:center;gap:7px;white-space:nowrap;transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+.toast.on{transform:translateX(-50%) translateY(0);}
+.toast-dot{width:7px;height:7px;background:var(--teal);border-radius:50%;}
+</style>
+<!-- Facebook Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','662175196923903');
+fbq('track','PageView');
+</script>
+<!-- UTMify -->
+<script async defer src="https://cdn.utmify.com.br/scripts/utms/latest.js"
+  data-utmify-prevent-xcod-sck data-utmify-prevent-subids></script>
+<!-- UTM capture -->
+<script>
+(function(){
+  var p=new URLSearchParams(window.location.search);
+  var t={src:p.get('src')||p.get('ref')||null,sck:p.get('sck')||null,
+    utm_source:p.get('utm_source')||null,utm_campaign:p.get('utm_campaign')||null,
+    utm_medium:p.get('utm_medium')||null,utm_content:p.get('utm_content')||null,
+    utm_term:p.get('utm_term')||null};
+  var has=Object.values(t).some(function(v){return v;});
+  if(has)sessionStorage.setItem('utmify_tracking',JSON.stringify(t));
+})();
+</script>
+</head>
+<body>
+
+<!-- GATE -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-icon">🛡️</div>
+    <h2>Age Verification</h2>
+    <p>Confirm you are at least <strong>18 years old</strong> to join the Premise data network and earn Naira rewards.</p>
+    <button class="gbtn gbtn-primary" onclick="proceed()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+      Yes, I am 18 or older
+    </button>
+    <button class="gbtn gbtn-muted" onclick="window.location.href='https://google.com'">I am under 18</button>
+    <div class="live-row"><div class="ldot"></div><span id="live-c">3,241 contributors online</span></div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 20 20"><path d="M4 3h7a4 4 0 0 1 0 8H7v6H4V3zm3 6h4a1 1 0 0 0 0-2H7v2z"/></svg>
+    </div>
+    <div class="logo-texts">
+      <div class="logo-name">Premise</div>
+      <div class="logo-sub">Data Network</div>
+    </div>
+  </div>
+  <div class="balance-badge" id="badge">₦ 0</div>
+</div>
+
+<!-- PROGRESS -->
+<div class="prog-wrap" id="prog-wrap">
+  <div class="prog-meta"><span id="prog-lbl">Task 1 of 5</span><span id="prog-pct">20%</span></div>
+  <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:20%"></div></div>
+</div>
+
+<div class="wrap">
+
+<!-- WELCOME -->
+<div class="scr on" id="scr-w">
+  <div class="wcard">
+    <div class="premise-pill">📍 Nigeria Data Network</div>
+    <h2>You've been selected! 🎉</h2>
+    <p>Evaluate photos and answer local surveys — earn real Naira paid directly to your Opay or Palmpay.</p>
+    <div class="bal-card">
+      <div class="bal-lbl">Your Current Balance</div>
+      <div class="bal-amt" id="w-bal">₦ 0</div>
+      <div class="bal-s">Grows with every completed task</div>
+      <div class="usd-equiv" id="w-usd">≈ $0.00 USD</div>
+    </div>
+    <div class="hint-row">
+      <div class="hint-ico">📋</div>
+      <div class="hint-txt">Complete <strong id="left-c">5 more tasks</strong> to unlock your instant withdrawal</div>
+    </div>
+    <button class="sbtn" onclick="startTasks()">
+      Start Earning Now
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- TASK -->
+<div class="scr" id="scr-t">
+  <div class="tcard">
+    <div class="tbar">
+      <div class="tbar-label" id="tbar-lbl">📸 Photo Evaluation</div>
+      <div class="tbar-chip" id="tbar-chip">+₦ 0</div>
+    </div>
+    <div class="tinner">
+      <div class="tload" id="tload">
+        <div class="pdots"><span></span><span></span><span></span></div>
+        <div class="load-title" id="load-t">Submitting…</div>
+        <div class="load-steps">
+          <span id="ls1">Uploading to Premise servers…</span>
+          <span id="ls2">Calculating your reward…</span>
+          <span id="ls3">Updating your balance…</span>
+        </div>
+      </div>
+      <div id="tcontent">
+        <div class="tq" id="tq">Question</div>
+        <div class="tsub" id="tsub">Tap to answer</div>
+        <div class="photo-grid" id="pgrid">
+          <div class="popt" id="pA" onclick="pickPhoto('a')">
+            <img id="imgA" src="" alt="">
+            <div class="ck">✓</div>
+            <div class="pcap" id="capA">A</div>
+          </div>
+          <div class="popt" id="pB" onclick="pickPhoto('b')">
+            <img id="imgB" src="" alt="">
+            <div class="ck">✓</div>
+            <div class="pcap" id="capB">B</div>
+          </div>
+        </div>
+        <div class="clist" id="clist" style="display:none"></div>
+        <button class="nbtn" id="nbtn" disabled onclick="submitTask()">
+          Submit & Earn
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div class="scr" id="scr-f">
+  <div class="fcard">
+    <div style="font-size:3.2rem;margin-bottom:10px;">🎊</div>
+    <h2>All Tasks Complete!</h2>
+    <p>Your responses have been submitted to the Premise network. Your balance is ready to withdraw.</p>
+    <div class="bal-card" style="margin:16px 0;">
+      <div class="bal-lbl">Total Earned</div>
+      <div class="bal-amt" id="final-amt">₦ 0</div>
+      <div class="bal-s">Ready for instant withdrawal</div>
+      <div class="usd-equiv" id="final-usd">≈ $250.00 USD</div>
+    </div>
+    <button class="wbtn" onclick="goVSL()">
+      💳 Withdraw Now
+    </button>
+    <div class="sec-note">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Opay · Palmpay · GTBank · Kuda
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-txt"></span></div>
+
+
+<script>
+// ══════════════════════════════════════
+//  BALANCE TARGET: ₦400,000 = $250 USD
+//  Rate: ₦1,600 / $1
+//  Initial balance: ₦4,730
+//  5 tasks split: 62000 + 65000 + 68000 + 71000 + 129270 = ₦395,270
+//  Grand total: ₦400,000 ✓
+// ══════════════════════════════════════
+
+const RATE     = 1600;   // NGN per USD
+const INITIAL  = 4730;   // shown on welcome screen
+const TASKS = [
+  {
+    type:'photo', lbl:'📸 Photo Evaluation',
+    q:'Which shop front looks more professionally maintained?',
+    sub:'Your rating helps local businesses improve. Tap to select.',
+    reward: 62000,
+    iA:'https://images.pexels.com/photos/2901209/pexels-photo-2901209.jpeg?auto=compress&cs=tinysrgb&w=600',
+    iB:'https://images.pexels.com/photos/375889/pexels-photo-375889.jpeg?auto=compress&cs=tinysrgb&w=600',
+    cA:'Shop A — Lagos', cB:'Shop B — Abuja'
+  },
+  {
+    type:'choice', lbl:'📝 Area Survey',
+    q:'How would you describe road conditions in your local area?',
+    sub:'Select the answer that best matches your daily experience.',
+    reward: 65000,
+    choices:['Excellent — smooth, well-maintained','Good — mostly fine, minor issues','Fair — some damage and potholes','Poor — significant road damage','Very poor — nearly impassable']
+  },
+  {
+    type:'photo', lbl:'📸 Market Evaluation',
+    q:'Which market stall looks more organised and trustworthy?',
+    sub:'Help map quality of local vendors in your area.',
+    reward: 68000,
+    iA:'https://images.pexels.com/photos/1300972/pexels-photo-1300972.jpeg?auto=compress&cs=tinysrgb&w=600',
+    iB:'https://images.pexels.com/photos/2255935/pexels-photo-2255935.jpeg?auto=compress&cs=tinysrgb&w=600',
+    cA:'Stall A — Balogun Market', cB:'Stall B — Wuse Market'
+  },
+  {
+    type:'choice', lbl:'📝 Consumer Survey',
+    q:'How often do you use mobile money apps (Opay, Palmpay, etc)?',
+    sub:'Helps financial companies understand usage in your region.',
+    reward: 71000,
+    choices:['Daily — for almost everything','Several times a week','Once or twice a week','Rarely — I mostly use cash','I have never used them']
+  },
+  {
+    type:'photo', lbl:'📸 Environment Check',
+    q:'Which neighbourhood environment looks cleaner and safer?',
+    sub:'Final task — your biggest reward. Rate honestly!',
+    reward: 129270,
+    iA:'https://images.pexels.com/photos/2387873/pexels-photo-2387873.jpeg?auto=compress&cs=tinysrgb&w=600',
+    iB:'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=600',
+    cA:'Area A — Victoria Island', cB:'Area B — Lekki'
+  }
+];
+
+const LOAD_MSGS = [
+  'Verifying photo data…',
+  'Processing survey response…',
+  'Submitting to Premise servers…',
+  'Syncing with data buyers…',
+  'Finalising your reward…'
+];
+
+let step=0, balance=0, pickA=null, pickC=null;
+
+// ─── HELPERS ───
+function $(id){return document.getElementById(id);}
+function N(n){return '₦ '+Math.round(n).toLocaleString('en-NG');}
+function USD(n){return '≈ $'+(n/RATE).toFixed(2)+' USD';}
+
+function setBadge(){
+  const b=$('badge');
+  b.textContent=N(balance);
+  b.classList.add('pop');
+  setTimeout(()=>b.classList.remove('pop'),500);
+}
+
+// ─── COIN SOUND (Web Audio API — no external file needed) ───
+function playCoin(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+
+    // Coin "ding" — two oscillators layered
+    function tone(freq,start,duration,gainVal){
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type='sine';
+      osc.frequency.setValueAtTime(freq,ctx.currentTime+start);
+      osc.frequency.exponentialRampToValueAtTime(freq*0.7,ctx.currentTime+start+duration);
+      gain.gain.setValueAtTime(gainVal,ctx.currentTime+start);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+start+duration);
+      osc.start(ctx.currentTime+start);
+      osc.stop(ctx.currentTime+start+duration+0.01);
+    }
+
+    tone(1200, 0,    0.12, 0.4);   // high ping
+    tone(900,  0.04, 0.15, 0.3);   // mid ring
+    tone(1500, 0.07, 0.10, 0.25);  // sparkle
+    tone(600,  0.10, 0.20, 0.2);   // low tail
+  }catch(e){}
+}
+
+// ─── COIN BURST VISUAL ───
+function burstCoin(){
+  const emojis=['💰','🪙','💵','✨'];
+  emojis.forEach((e,i)=>{
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='coin-burst';
+      el.textContent=e;
+      el.style.left=(40+Math.random()*20)+'%';
+      el.style.top=(40+Math.random()*20)+'%';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),750);
+    },i*80);
+  });
+}
+
+// ─── INIT ───
+function proceed(){
+  $('gate').style.display='none';
+  balance=INITIAL;
+  setBadge();
+  $('w-bal').textContent=N(balance);
+  $('w-usd').textContent=USD(balance);
+  notifications(); liveCount();
+}
+
+function startTasks(){
+  $('scr-w').classList.remove('on');
+  $('prog-wrap').style.display='block';
+  $('scr-t').classList.add('on');
+  loadTask(0);
+}
+
+// ─── LOAD TASK ───
+function loadTask(i){
+  pickA=null; pickC=null;
+  $('nbtn').disabled=true;
+  $('tload').classList.remove('on');
+  $('tcontent').style.display='block';
+
+  const t=TASKS[i];
+  const pct=Math.round(((i+1)/5)*100);
+  $('prog-fill').style.width=pct+'%';
+  $('prog-pct').textContent=pct+'%';
+  $('prog-lbl').textContent='Task '+(i+1)+' of 5';
+  $('left-c').textContent=(5-i)+' tasks left';
+  $('tbar-lbl').textContent=t.lbl;
+  $('tbar-chip').textContent='+'+N(t.reward);
+  $('tq').textContent=t.q;
+  $('tsub').textContent=t.sub;
+
+  if(t.type==='photo'){
+    $('pgrid').style.display='grid';
+    $('clist').style.display='none';
+    $('imgA').style.opacity='0';
+    $('imgB').style.opacity='0';
+    $('imgA').src=t.iA; $('imgB').src=t.iB;
+    $('imgA').onload=()=>{ $('imgA').style.opacity='1'; };
+    $('imgB').onload=()=>{ $('imgB').style.opacity='1'; };
+    $('imgA').style.transition='opacity .3s';
+    $('imgB').style.transition='opacity .3s';
+    $('capA').textContent=t.cA; $('capB').textContent=t.cB;
+    $('pA').className='popt'; $('pB').className='popt';
+  } else {
+    $('pgrid').style.display='none';
+    const cl=$('clist'); cl.style.display='flex';
+    cl.innerHTML=t.choices.map((c,idx)=>`
+      <div class="citem" onclick="pickChoice(this,${idx})">
+        <div class="cradio"></div>
+        <span>${c}</span>
+      </div>`).join('');
+  }
+}
+
+function pickPhoto(w){
+  pickA=w;
+  $('pA').className='popt'+(w==='a'?' sel':'');
+  $('pB').className='popt'+(w==='b'?' sel':'');
+  $('nbtn').disabled=false;
+}
+
+function pickChoice(el,i){
+  pickC=i;
+  document.querySelectorAll('.citem').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  $('nbtn').disabled=false;
+}
+
+// ─── SUBMIT ───
+function submitTask(){
+  const t=TASKS[step];
+
+  // Hide content, show loader
+  $('tcontent').style.display='none';
+  const ld=$('tload'); ld.classList.add('on');
+  $('load-t').textContent=LOAD_MSGS[step];
+  ['ls1','ls2','ls3'].forEach(id=>$(id).classList.remove('on'));
+  setTimeout(()=>$('ls1').classList.add('on'),400);
+  setTimeout(()=>$('ls2').classList.add('on'),900);
+  setTimeout(()=>$('ls3').classList.add('on'),1400);
+
+  setTimeout(()=>{
+    ld.classList.remove('on');
+    balance+=t.reward;
+
+    // 🔊 COIN SOUND + 💰 BURST
+    playCoin();
+    burstCoin();
+
+    setBadge();
+    showToast(t.reward);
+    step++;
+
+    if(step<5){
+      loadTask(step);
+    } else {
+      $('prog-fill').style.width='100%';
+      $('prog-pct').textContent='100%';
+      $('scr-t').classList.remove('on');
+      $('final-amt').textContent=N(balance);
+      $('final-usd').textContent=USD(balance);
+      $('scr-f').classList.add('on');
+
+      // Final fanfare — 3 coins in sequence
+      setTimeout(()=>playCoin(),100);
+      setTimeout(()=>playCoin(),350);
+      setTimeout(()=>playCoin(),600);
+
+      localStorage.setItem('premise_balance', Math.round(balance));
+    }
+  }, 2000);
+}
+
+function goVSL(){
+  localStorage.setItem('premise_balance', Math.round(balance));
+  const params = new URLSearchParams(window.location.search);
+  const qs = params.toString();
+  window.location.href = './premise-vsl.html' + (qs ? '?' + qs : '');
+}
+
+// ─── TOAST ───
+function showToast(amt){
+  const t=$('toast');
+  $('toast-txt').textContent='+'+N(amt)+' added to your balance!';
+  t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2600);
+}
+
+function notifications(){}
+
+// ─── LIVE COUNT ───
+function liveCount(){
+  let v=3241;
+  setInterval(()=>{
+    v+=Math.floor(Math.random()*18)-7;
+    v=Math.max(2700,Math.min(4500,v));
+    const el=$('live-c');
+    if(el) el.textContent=v.toLocaleString('en-NG')+' contributors online';
+  },4000);
+}
+</script>
+</body>
+</html>
