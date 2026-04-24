@@ -339,7 +339,6 @@ setTimeout(function(){
     btn.addEventListener('click', function(e) {
       if(window.fbq) {
         fbq('track', 'InitiateCheckout', {content_name:'Premise Nigeria', value:12500, currency:'NGN'});
-        fbq('track', 'Purchase', {content_name:'Premise Nigeria', value:12500, currency:'NGN'});
       }
     });
   }
