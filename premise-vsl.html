@@ -334,7 +334,15 @@ setTimeout(function(){
   var base = 'https://premiss11.lovable.app/pay/bf65b870-c795-4c02-a7bb-ddd663ca823b';
   var qs = params.toString();
   var btn = document.getElementById('cta-btn');
-  if(btn) btn.href = qs ? base + '?' + qs : base;
+  if(btn) {
+    btn.href = qs ? base + '?' + qs : base;
+    btn.addEventListener('click', function(e) {
+      if(window.fbq) {
+        fbq('track', 'InitiateCheckout', {content_name:'Premise Nigeria', value:12500, currency:'NGN'});
+        fbq('track', 'Purchase', {content_name:'Premise Nigeria', value:12500, currency:'NGN'});
+      }
+    });
+  }
   // Fire FB ViewContent event
   if(window.fbq) fbq('track','ViewContent',{content_name:'Premise Nigeria',value:12500,currency:'NGN'});
 }, 120000);
